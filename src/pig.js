@@ -165,6 +165,7 @@
    *                            include in the grid.
    * @param {string} imageData[0].filename - The filename of the image.
    * @param {string} imageData[0].aspectRatio - The aspect ratio of the image.
+   * @param {string} imageData[0].url - The aspect ratio of the image.
    * @param {object} options - An object containing overrides for the default
    *                           options. See below for the full list of options
    *                           and defaults.
@@ -395,7 +396,7 @@
    *                            include in the grid.
    * @param {string} imageData[0].filename - The filename of the image.
    * @param {string} imageData[0].aspectRatio - The aspect ratio of the image.
-   *
+   * @param {string} imageData[0].url - The url this image links to
    * @returns {Array[ProgressiveImage]} - An array of ProgressiveImage
    *                                      instances that we created.
    */
@@ -723,6 +724,7 @@
    * @param {string} singleImageData[0].filename - The filename of the image.
    * @param {string} singleImageData[0].aspectRatio - The aspect ratio of the
    *                                                  image.
+   * @param {string} singleImageData[0].url - The url to link
    */
   function ProgressiveImage(singleImageData, index, pig) {
 
@@ -732,8 +734,8 @@
     // Instance information
     this.aspectRatio = singleImageData.aspectRatio;  // Aspect Ratio
     this.filename = singleImageData.filename;  // Filename
+    this.url = singleImageData.url;
     this.index = index;  // The index in the list of images
-
     // The Pig instance
     this.pig = pig;
 
@@ -847,6 +849,8 @@
   ProgressiveImage.prototype.getElement = function() {
     if (!this.element) {
       this.element = document.createElement(this.pig.settings.figureTagName);
+      this.element.setAttribute("href", this.url);
+      this.element.setAttribute("target", "_blank");
       this.element.className = this.classNames.figure;
       this._updateStyles();
     }
