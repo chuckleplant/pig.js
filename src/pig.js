@@ -103,6 +103,29 @@
       '}' +
       '.' + classPrefix + '-figure img.' + classPrefix + '-loaded {' +
       '  opacity: 1;' +
+      '}' +
+      '.' + classPrefix + '-caption {'+
+      'display: block;' +
+      'opacity: 0;' +
+      'transition: opacity .5s ease-out;'+
+      '-moz-transition: opacity .5s ease-out;'+
+      '-webkit-transition: opacity .5s ease-out;'+
+      '-o-transition: opacity .5s ease-out;'+
+      'position: absolute;' +
+      'bottom: 0;' +
+      'padding: 5px;' +
+      'background-color: #000;' +
+      'left: 0;' +
+      'right: 0;' +
+      'margin: 0;' +
+      'color: #fff;' +
+      'font-size: 12px;' +
+      'font-family: sans-serif;' +
+      'font-weight: 300;' +
+      'z-index: 2;' +
+      '}' +
+      '.' + classPrefix + '-figure:hover .'+classPrefix+'-caption{'+
+      'opacity: 0.7;' +
       '}'
     );
 
@@ -165,6 +188,7 @@
    *                            include in the grid.
    * @param {string} imageData[0].filename - The filename of the image.
    * @param {string} imageData[0].aspectRatio - The aspect ratio of the image.
+   * @param {string} imageData[0].url - The aspect ratio of the image.
    * @param {object} options - An object containing overrides for the default
    *                           options. See below for the full list of options
    *                           and defaults.
@@ -214,9 +238,9 @@
        * Type: string
        * Default: 'figure'
        * Description: The tag name to use for each figure. The default setting is
-       *   to use a <figure></figure> tag.
+       *   to use a <a></a> tag.
        */
-      figureTagName: 'figure',
+      figureTagName: 'a',
 
       /**
        * Type: Number
@@ -395,7 +419,7 @@
    *                            include in the grid.
    * @param {string} imageData[0].filename - The filename of the image.
    * @param {string} imageData[0].aspectRatio - The aspect ratio of the image.
-   *
+   * @param {string} imageData[0].url - The url this image links to
    * @returns {Array[ProgressiveImage]} - An array of ProgressiveImage
    *                                      instances that we created.
    */
@@ -698,10 +722,10 @@
    * width, and position in the grid. An instance of this class is associated
    * with a single image figure, which looks like this:
    *
-   *   <figure class="pig-figure" style="transform: ...">
+   *   <a class="pig-figure" style="transform: ...">
    *     <img class="pig-thumbnail pig-loaded" src="/path/to/thumbnail/image.jpg" />
    *     <img class="pig-loaded" src="/path/to/500px/image.jpg" />
-   *   </figure>
+   *   </a>
    *
    * However, this element may or may not actually exist in the DOM. The actual
    * DOM element may loaded and unloaded depending on where it is with respect
@@ -710,7 +734,7 @@
    * be removed.
    *
    * This class also manages the blur-into-focus load effect.  First, the
-   * <figure> element is inserted into the page. Then, a very small thumbnail
+   * <a> element is inserted into the page. Then, a very small thumbnail
    * is loaded, stretched out to the full size of the image.  This pixelated
    * image is then blurred using CSS filter: blur(). Then, the full image is
    * loaded, with opacity:0.  Once it has loaded, it is given the `pig-loaded`
@@ -723,6 +747,7 @@
    * @param {string} singleImageData[0].filename - The filename of the image.
    * @param {string} singleImageData[0].aspectRatio - The aspect ratio of the
    *                                                  image.
+   * @param {string} singleImageData[0].url - The url to link
    */
   function ProgressiveImage(singleImageData, index, pig) {
 
@@ -732,8 +757,8 @@
     // Instance information
     this.aspectRatio = singleImageData.aspectRatio;  // Aspect Ratio
     this.filename = singleImageData.filename;  // Filename
+    this.url = singleImageData.url;
     this.index = index;  // The index in the list of images
-
     // The Pig instance
     this.pig = pig;
 
@@ -741,6 +766,7 @@
       figure: pig.settings.classPrefix + '-figure',
       thumbnail: pig.settings.classPrefix + '-thumbnail',
       loaded: pig.settings.classPrefix + '-loaded',
+      caption: pig.settings.classPrefix + '-caption'
     };
 
     return this;
@@ -847,7 +873,15 @@
   ProgressiveImage.prototype.getElement = function() {
     if (!this.element) {
       this.element = document.createElement(this.pig.settings.figureTagName);
+      this.element.setAttribute("href", this.url);
+      this.element.setAttribute("target", "_blank");
       this.element.className = this.classNames.figure;
+      
+      var captionDiv = document.createElement("div");
+      captionDiv.className = this.classNames.caption;
+      var captionTitle = document.createTextNode(this.filename.substring(this.filename.lastIndexOf("/")+1, this.filename.lastIndexOf("."))); 
+      captionDiv.appendChild(captionTitle);
+      this.element.appendChild(captionDiv);
       this._updateStyles();
     }
 
