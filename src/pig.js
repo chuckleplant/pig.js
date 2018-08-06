@@ -103,6 +103,29 @@
       '}' +
       '.' + classPrefix + '-figure img.' + classPrefix + '-loaded {' +
       '  opacity: 1;' +
+      '}' +
+      '.' + classPrefix + '-caption {'+
+      'display: block;' +
+      'opacity: 0;' +
+      'transition: opacity .5s ease-out;'+
+      '-moz-transition: opacity .5s ease-out;'+
+      '-webkit-transition: opacity .5s ease-out;'+
+      '-o-transition: opacity .5s ease-out;'+
+      'position: absolute;' +
+      'bottom: 0;' +
+      'padding: 5px;' +
+      'background-color: #000;' +
+      'left: 0;' +
+      'right: 0;' +
+      'margin: 0;' +
+      'color: #fff;' +
+      'font-size: 12px;' +
+      'font-family: sans-serif;' +
+      'font-weight: 300;' +
+      'z-index: 2;' +
+      '}' +
+      '.' + classPrefix + '-figure:hover .'+classPrefix+'-caption{'+
+      'opacity: 0.7;' +
       '}'
     );
 
@@ -215,9 +238,9 @@
        * Type: string
        * Default: 'figure'
        * Description: The tag name to use for each figure. The default setting is
-       *   to use a <figure></figure> tag.
+       *   to use a <a></a> tag.
        */
-      figureTagName: 'figure',
+      figureTagName: 'a',
 
       /**
        * Type: Number
@@ -699,10 +722,10 @@
    * width, and position in the grid. An instance of this class is associated
    * with a single image figure, which looks like this:
    *
-   *   <figure class="pig-figure" style="transform: ...">
+   *   <a class="pig-figure" style="transform: ...">
    *     <img class="pig-thumbnail pig-loaded" src="/path/to/thumbnail/image.jpg" />
    *     <img class="pig-loaded" src="/path/to/500px/image.jpg" />
-   *   </figure>
+   *   </a>
    *
    * However, this element may or may not actually exist in the DOM. The actual
    * DOM element may loaded and unloaded depending on where it is with respect
@@ -711,7 +734,7 @@
    * be removed.
    *
    * This class also manages the blur-into-focus load effect.  First, the
-   * <figure> element is inserted into the page. Then, a very small thumbnail
+   * <a> element is inserted into the page. Then, a very small thumbnail
    * is loaded, stretched out to the full size of the image.  This pixelated
    * image is then blurred using CSS filter: blur(). Then, the full image is
    * loaded, with opacity:0.  Once it has loaded, it is given the `pig-loaded`
@@ -743,6 +766,7 @@
       figure: pig.settings.classPrefix + '-figure',
       thumbnail: pig.settings.classPrefix + '-thumbnail',
       loaded: pig.settings.classPrefix + '-loaded',
+      caption: pig.settings.classPrefix + '-caption'
     };
 
     return this;
@@ -852,6 +876,12 @@
       this.element.setAttribute("href", this.url);
       this.element.setAttribute("target", "_blank");
       this.element.className = this.classNames.figure;
+      
+      var captionDiv = document.createElement("div");
+      captionDiv.className = this.classNames.caption;
+      var captionTitle = document.createTextNode(this.filename.substring(this.filename.lastIndexOf("/")+1, this.filename.lastIndexOf("."))); 
+      captionDiv.appendChild(captionTitle);
+      this.element.appendChild(captionDiv);
       this._updateStyles();
     }
 
